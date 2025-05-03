@@ -18,12 +18,13 @@ jobs:
           echo "Copying abc.txt to hello.txt..."
           cp abc.txt hello.txt
 
-      - name: Commit and push changes
+      - name: Commit and push updated file
         run: |
           git config --global user.name "github-actions"
           git config --global user.email "github-actions@github.com"
+          git pull origin main --rebase
           git add hello.txt
-          git commit -m "Updated hello.txt with contents of abc.txt"
-          git push
+          git commit -m "Updated hello.txt with contents of abc.txt" || echo "No changes to commit"
+          git push origin main
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
