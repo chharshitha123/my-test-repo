@@ -32,7 +32,7 @@ jobs:
             -d "{
               \"model\": \"gpt-3.5-turbo\",
               \"messages\": [
-                {\"role\": \"user\", \"content\": \"$ABC_CONTENT\"}
+                {\"role\": \"user\", \"content\": \"${ABC_CONTENT}\"}
               ]
             }")
 
@@ -47,3 +47,5 @@ jobs:
         run: |
           echo "Final AI Response:"
           echo "$AI_RESPONSE"
+        env:
+          AI_RESPONSE: ${{ env.AI_RESPONSE }}
