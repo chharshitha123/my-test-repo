@@ -1,0 +1,29 @@
+name: Copy abc.txt to hello.txt
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  copy_file:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Copy abc.txt to hello.txt
+        run: |
+          echo "Copying abc.txt to hello.txt..."
+          cp abc.txt hello.txt
+
+      - name: Commit and push changes
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
+          git add hello.txt
+          git commit -m "Updated hello.txt with contents of abc.txt"
+          git push
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
