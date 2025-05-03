@@ -1,4 +1,4 @@
-name: Send abc.txt Content to AI
+name: Send abc.txt to OpenAI API
 
 on:
   push:
@@ -10,53 +10,40 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Read content from abc.txt
-        id: read_abc
+      - name: Read abc.txt content
+        id: read_file
         run: |
-          # Read the content of abc.txt into a variable
-          ABC_CONTENT=$(cat abc.txt)
-          # Debugging: Check if content is read properly
-          echo "Content from abc.txt:"
-          echo "$ABC_CONTENT"
-          
-          # Save the content into GitHub environment variable
+          echo "Reading abc.txt..."
+          ABC_CONTENT=$(cat abc.txt | tr '\n' ' ' | sed 's/"/\\"/g')
           echo "ABC_CONTENT=$ABC_CONTENT" >> $GITHUB_ENV
 
-      - name: Call AI API
-        id: ai_process
+      - name: Send to OpenAI API
+        id: call_openai
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         run: |
-          # Set the API key for OpenAI (You should store this in GitHub Secrets for security)
-          API_KEY="${{ secrets.OPENAI_API_KEY }}"
-
-          # Debugging: Print out what we are sending to AI
-          echo "Sending to AI: $ABC_CONTENT"
-          
-          # Make the POST request to the OpenAI API
-          RESPONSE=$(curl -s -X POST "https://api.openai.com/v1/completions" \
+          echo "Sending content to OpenAI..."
+          RESPONSE=$(curl --fail --silent --show-error --max-time 20 https://api.openai.com/v1/chat/completions \
             -H "Content-Type: application/json" \
-            -H "Authorization: Bearer $API_KEY" \
-            -d '{
-              "model": "text-davinci-003",
-              "prompt": "'"$ABC_CONTENT"'",
-              "max_tokens": 150
-            }')
+            -H "Authorization: Bearer $OPENAI_API_KEY" \
+            -d "{
+              \"model\": \"gpt-3.5-turbo\",
+              \"messages\": [
+                {\"role\": \"user\", \"content\": \"$ABC_CONTENT\"}
+              ]
+            }")
 
-          # Extract the AI response
-          AI_RESPONSE=$(echo "$RESPONSE" | jq -r '.choices[0].text // empty')
+          echo "Raw API response:"
+          echo "$RESPONSE"
 
-          if [ -z "$AI_RESPONSE" ]; then
-            AI_RESPONSE="No response from AI"
-          fi
-
-          # Output the response
-          echo "AI Response: $AI_RESPONSE"
+          # Extract the response safely
+          AI_RESPONSE=$(echo "$RESPONSE" | jq -r '.choices[0].message.content // "No AI response"')
           echo "AI_RESPONSE=$AI_RESPONSE" >> $GITHUB_ENV
 
-      - name: Output AI response
+      - name: Show AI response
         run: |
-          # Output the response for debugging
-          echo "AI Response from AI API:"
+          echo "Final AI Response:"
           echo "$AI_RESPONSE"
