@@ -21,7 +21,7 @@ jobs:
 
       - name: Create new branch
         run: |
-          BRANCH_NAME="auto-pr-$((date +%s))" # Unique branch name
+          BRANCH_NAME="auto-pr-$(date +%Y%m%d%H%M%S)-$RANDOM"
           git checkout -b "$BRANCH_NAME"
 
       - name: Add random commit
