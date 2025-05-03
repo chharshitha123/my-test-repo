@@ -13,20 +13,24 @@ jobs:
         uses: actions/checkout@v4
         with:
           ref: main # Or your default branch
+
       - name: Set up Git
         run: |
           git config --local user.name "github-actions"
           git config --local user.email "github-actions@github.com"
+
       - name: Create new branch
         run: |
-          BRANCH_NAME="auto-pr-$((`date +%s`))" # Unique branch name
+          BRANCH_NAME="auto-pr-$((date +%s))" # Unique branch name
           git checkout -b "$BRANCH_NAME"
+
       - name: Add random commit
         run: |
           MESSAGE="Random message: $RANDOM" # Add some randomness
           echo "$MESSAGE" > random.txt
           git add random.txt
           git commit -m "Add random message: $MESSAGE"
+
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v6
         with:
@@ -34,4 +38,4 @@ jobs:
           title: "Auto PR: Random Update"
           body: "This pull request was automatically created on push to main with a random message: $RANDOM"
           base: main # Or your default branch
-          head: ${{ github.head_ref }}
+          head: "$BRANCH_NAME" # Use the local branch name
