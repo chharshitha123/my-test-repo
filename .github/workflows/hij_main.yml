@@ -42,16 +42,18 @@ jobs:
           echo "Raw API Response:"
           echo "$RESPONSE"
 
-          # Check if the response has 'choices'
+          # Check if the response has 'choices' or 'error'
           if echo "$RESPONSE" | jq -e '.choices' > /dev/null; then
-            # Extract AI response
             AI_RESPONSE=$(echo "$RESPONSE" | jq -r '.choices[0].message.content // .choices[0].text // empty')
 
             if [ -z "$AI_RESPONSE" ]; then
               AI_RESPONSE="No response from AI"
             fi
+          elif echo "$RESPONSE" | jq -e '.error' > /dev/null; then
+            ERROR_MESSAGE=$(echo "$RESPONSE" | jq -r '.error.message // empty')
+            AI_RESPONSE="Error from AI: $ERROR_MESSAGE"
           else
-            AI_RESPONSE="Invalid API Response Structure or No 'choices' field"
+            AI_RESPONSE="Invalid API Response Structure"
           fi
 
           echo "AI_RESPONSE<<EOF" >> $GITHUB_ENV
