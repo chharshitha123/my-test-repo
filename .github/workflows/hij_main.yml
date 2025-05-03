@@ -1,23 +1,26 @@
-name: Display abc.txt Content on Push
+name: Display abc.txt Content
 
 on:
   push:
-    branches:
-      - main
+    paths:
+      - 'abc.txt'
+      - '.github/workflows/hij_main.yml'
 
 jobs:
-  display_content:
+  display-content:
     runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
 
-      - name: Read abc.txt
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Read abc.txt Content
         id: read_abc
         run: |
-          echo "ABC_CONTENT<<EOF" >> $GITHUB_ENV
-          cat abc.txt >> $GITHUB_ENV
-          echo "EOF" >> $GITHUB_ENV
+          CONTENT=$(cat abc.txt)
+          echo "ABC_CONTENT<<EOF" >> $GITHUB_OUTPUT
+          echo "$CONTENT" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
 
       - name: Call AI processing
         id: ai_process
@@ -26,34 +29,27 @@ jobs:
           API_KEY="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"
           MODEL_NAME="google/gemma-3-27b-it:free"
 
-          # Escape newlines and quotes for safe JSON input
-          ESCAPED_CONTENT=$(jq -Rs <<< "$ABC_CONTENT")
-
           RESPONSE=$(curl -s -X POST \
             -H "Content-Type: application/json" \
             -H "Authorization: Bearer $API_KEY" \
             -d "{
-              \"model\": \"$MODEL_NAME\",
-              \"messages\": [
-                {\"role\": \"user\", \"content\": $ESCAPED_CONTENT}
-              ]
-            }" \
+                  \"model\": \"$MODEL_NAME\",
+                  \"messages\": [
+                    {\"role\": \"user\", \"content\": \"${{ steps.read_abc.outputs.ABC_CONTENT }}\"}
+                  ]
+                }" \
             "$API_ENDPOINT")
 
           echo "Raw API Response: $RESPONSE"
 
           AI_RESPONSE=$(echo "$RESPONSE" | jq -r '.choices[0].message.content // .choices[0].text // empty')
           if [ -z "$AI_RESPONSE" ]; then
-             AI_RESPONSE="No response from AI"
+            AI_RESPONSE="No response from AI"
           fi
 
           echo "AI_RESPONSE=$AI_RESPONSE" >> $GITHUB_OUTPUT
-        env:
-          ABC_CONTENT: ${{ env.ABC_CONTENT }}
-        outputs:
-          AI_RESPONSE: ${{ steps.ai_process.outputs.AI_RESPONSE }}
 
-      - name: Output AI response
+      - name: Output AI Response
         run: |
           echo "AI Response:"
           echo "${{ steps.ai_process.outputs.AI_RESPONSE }}"
