@@ -36,7 +36,9 @@ jobs:
                 }" \
             "$API_ENDPOINT")
 
-          echo "Raw API Response: $RESPONSE"
+          echo "Raw API Response: $RESPONSE" # Print the raw response for debugging
+
+          # Attempt to extract the AI's response robustly
           AI_RESPONSE=$(echo "$RESPONSE" | jq -r '.predictions[0].content // .result.text // .response // empty')
           if [ -z "$AI_RESPONSE" ]; then
              AI_RESPONSE="No response from AI"
