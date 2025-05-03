@@ -22,7 +22,7 @@ jobs:
         run: |
           git config --global user.name "github-actions"
           git config --global user.email "github-actions@github.com"
-          git pull origin main --rebase
+          git pull origin main # Remove --rebase to avoid the issue
           git add hello.txt
           git commit -m "Updated hello.txt with contents of abc.txt" || echo "No changes to commit"
           git push origin main
