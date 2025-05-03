@@ -22,8 +22,8 @@ jobs:
         id: ai_process
         run: |
           API_ENDPOINT="https://openrouter.ai/api/v1/chat/completions"
-          API_KEY="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" #  Keep your API key secure!
-          MODEL_NAME="google/gemma-3-27b-it:free" #  Use Gemini 2.0 Flash
+          API_KEY="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"
+          MODEL_NAME="google/gemma-3-27b-it:free"
 
           RESPONSE=$(curl -X POST \
             -H "Content-Type: application/json" \
@@ -36,9 +36,11 @@ jobs:
                 }" \
             "$API_ENDPOINT")
 
-          # Extract the AI's response from the API output.
-          AI_RESPONSE=$(echo "$RESPONSE" | jq -r '.predictions[0].content')
-
+          echo "Raw API Response: $RESPONSE"
+          AI_RESPONSE=$(echo "$RESPONSE" | jq -r '.predictions[0].content // .result.text // .response // empty')
+          if [ -z "$AI_RESPONSE" ]; then
+             AI_RESPONSE="No response from AI"
+          fi
           echo "AI_RESPONSE=$AI_RESPONSE" >> $GITHUB_OUTPUT
 
       - name: Output AI response
