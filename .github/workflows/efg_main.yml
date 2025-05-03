@@ -1,0 +1,20 @@
+name: Print Hello World Content
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  print_hello_content:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Create hello.txt
+        run: |
+          echo "hello world" > hello.txt
+
+      - name: Print hello.txt content
+        run: |
+          cat hello.txt
