@@ -26,7 +26,7 @@ jobs:
         id: ai_process
         run: |
           API_ENDPOINT="https://openrouter.ai/api/v1/chat/completions"
-          API_KEY="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"
+          API_KEY="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"
           MODEL_NAME="google/gemma-3-27b-it:free"
 
           RESPONSE=$(curl -s -X POST \
