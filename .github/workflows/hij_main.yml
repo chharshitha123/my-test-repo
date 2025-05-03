@@ -1,5 +1,3 @@
-name: Display abc.txt Content on Push
-
 on:
   push:
     branches:
@@ -44,11 +42,16 @@ jobs:
           echo "Raw API Response:"
           echo "$RESPONSE"
 
-          # Extract AI response
-          AI_RESPONSE=$(echo "$RESPONSE" | jq -r '.choices[0].message.content // .choices[0].text // empty')
+          # Check if the response has 'choices'
+          if echo "$RESPONSE" | jq -e '.choices' > /dev/null; then
+            # Extract AI response
+            AI_RESPONSE=$(echo "$RESPONSE" | jq -r '.choices[0].message.content // .choices[0].text // empty')
 
-          if [ -z "$AI_RESPONSE" ]; then
-            AI_RESPONSE="No response from AI"
+            if [ -z "$AI_RESPONSE" ]; then
+              AI_RESPONSE="No response from AI"
+            fi
+          else
+            AI_RESPONSE="Invalid API Response Structure or No 'choices' field"
           fi
 
           echo "AI_RESPONSE<<EOF" >> $GITHUB_ENV
