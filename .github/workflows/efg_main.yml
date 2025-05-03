@@ -1,20 +1,33 @@
-name: Print Hello World Content
+name: Create File in Repository on Push
 on:
   push:
     branches:
       - main
 
 jobs:
-  print_hello_content:
+  create_file:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Create hello.txt
+      - name: Set up Git
         run: |
-          echo "hello world" > hello.txt
+          git config --local user.name "github-actions"
+          git config --local user.email "github-actions@github.com"
 
-      - name: Print hello.txt content
+      - name: Create the file
         run: |
-          cat hello.txt
+          echo "This is the content of the file." > my_new_file.txt
+
+      - name: Add the file to Git
+        run: |
+          git add my_new_file.txt
+
+      - name: Commit the file
+        run: |
+          git commit -m "Add my_new_file.txt"
+
+      - name: Push the changes
+        run: |
+          git push origin main
