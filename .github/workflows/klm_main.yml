@@ -18,13 +18,19 @@ jobs:
           echo "Copying abc.txt to hello.txt..."
           cp abc.txt hello.txt
 
-      - name: Commit and push updated file
+      - name: Commit local changes if any
         run: |
           git config --global user.name "github-actions"
           git config --global user.email "github-actions@github.com"
-          git pull origin main # Remove --rebase to avoid the issue
           git add hello.txt
           git commit -m "Updated hello.txt with contents of abc.txt" || echo "No changes to commit"
+        
+      - name: Pull latest changes from remote
+        run: |
+          git pull origin main # Fetch latest changes from remote without rebase to avoid conflicts
+
+      - name: Push changes
+        run: |
           git push origin main
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
