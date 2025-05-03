@@ -1,66 +1,62 @@
+name: Send abc.txt Content to AI
+
 on:
   push:
     branches:
       - main
 
 jobs:
-  display_content:
+  send_to_ai:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Read abc.txt
+      - name: Read content from abc.txt
         id: read_abc
         run: |
+          # Read the content of abc.txt into a variable
           ABC_CONTENT=$(cat abc.txt)
-          echo "ABC_CONTENT<<EOF" >> $GITHUB_ENV
-          echo "$ABC_CONTENT" >> $GITHUB_ENV
-          echo "EOF" >> $GITHUB_ENV
+          # Debugging: Check if content is read properly
+          echo "Content from abc.txt:"
+          echo "$ABC_CONTENT"
+          
+          # Save the content into GitHub environment variable
+          echo "ABC_CONTENT=$ABC_CONTENT" >> $GITHUB_ENV
 
-      - name: Call AI processing
+      - name: Call AI API
         id: ai_process
         run: |
-          API_ENDPOINT="https://openrouter.ai/api/v1/chat/completions"
-          API_KEY="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" # Replace with your key
-          MODEL_NAME="google/gemma-3-27b-it:free"
+          # Set the API key for OpenAI (You should store this in GitHub Secrets for security)
+          API_KEY="${{ secrets.OPENAI_API_KEY }}"
 
+          # Debugging: Print out what we are sending to AI
           echo "Sending to AI: $ABC_CONTENT"
-
-          RESPONSE=$(curl -s -X POST \
+          
+          # Make the POST request to the OpenAI API
+          RESPONSE=$(curl -s -X POST "https://api.openai.com/v1/completions" \
             -H "Content-Type: application/json" \
             -H "Authorization: Bearer $API_KEY" \
-            -d "{
-              \"model\": \"$MODEL_NAME\",
-              \"messages\": [
-                {\"role\": \"user\", \"content\": \"$ABC_CONTENT\"}
-              ]
-            }" \
-            "$API_ENDPOINT")
+            -d '{
+              "model": "text-davinci-003",
+              "prompt": "'"$ABC_CONTENT"'",
+              "max_tokens": 150
+            }')
 
-          echo "Raw API Response:"
-          echo "$RESPONSE"
+          # Extract the AI response
+          AI_RESPONSE=$(echo "$RESPONSE" | jq -r '.choices[0].text // empty')
 
-          # Check if the response has 'choices' or 'error'
-          if echo "$RESPONSE" | jq -e '.choices' > /dev/null; then
-            AI_RESPONSE=$(echo "$RESPONSE" | jq -r '.choices[0].message.content // .choices[0].text // empty')
-
-            if [ -z "$AI_RESPONSE" ]; then
-              AI_RESPONSE="No response from AI"
-            fi
-          elif echo "$RESPONSE" | jq -e '.error' > /dev/null; then
-            ERROR_MESSAGE=$(echo "$RESPONSE" | jq -r '.error.message // empty')
-            AI_RESPONSE="Error from AI: $ERROR_MESSAGE"
-          else
-            AI_RESPONSE="Invalid API Response Structure"
+          if [ -z "$AI_RESPONSE" ]; then
+            AI_RESPONSE="No response from AI"
           fi
 
-          echo "AI_RESPONSE<<EOF" >> $GITHUB_ENV
-          echo "$AI_RESPONSE" >> $GITHUB_ENV
-          echo "EOF" >> $GITHUB_ENV
+          # Output the response
+          echo "AI Response: $AI_RESPONSE"
+          echo "AI_RESPONSE=$AI_RESPONSE" >> $GITHUB_ENV
 
       - name: Output AI response
         run: |
-          echo "AI Response:"
+          # Output the response for debugging
+          echo "AI Response from AI API:"
           echo "$AI_RESPONSE"
