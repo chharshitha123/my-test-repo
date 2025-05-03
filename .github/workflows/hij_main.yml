@@ -12,7 +12,36 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Display abc.txt content
+      - name: Read abc.txt
+        id: read_abc
         run: |
-          echo "Content of abc.txt:"
-          cat abc.txt
+          ABC_CONTENT=$(cat abc.txt)
+          echo "ABC_CONTENT=$ABC_CONTENT" >> $GITHUB_OUTPUT
+
+      - name: Call AI processing
+        id: ai_process
+        run: |
+          API_ENDPOINT="https://ai.google.dev/api/rest"
+          API_KEY="AIzaSyDZWAj-in04FwgvPW0xyWwWZPqfDPagl8E" #  Keep your API key secure!
+          MODEL_NAME="gemini-2.0-flash" #  Use Gemini 2.0 Flash
+
+          RESPONSE=$(curl -X POST \
+            -H "Content-Type: application/json" \
+            -H "Authorization: Bearer $API_KEY" \
+            -d "{
+                  \"model\": \"$MODEL_NAME\",
+                  \"prompt\": {
+                    \"text\": \"$ABC_CONTENT\"
+                  }
+                }" \
+            "$API_ENDPOINT")
+
+          # Extract the AI's response from the API output.
+          AI_RESPONSE=$(echo "$RESPONSE" | jq -r '.predictions[0].content')
+
+          echo "AI_RESPONSE=$AI_RESPONSE" >> $GITHUB_OUTPUT
+
+      - name: Output AI response
+        run: |
+          echo "AI Response:"
+          echo "${{ steps.ai_process.outputs.AI_RESPONSE }}"
