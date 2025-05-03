@@ -21,13 +21,8 @@ jobs:
         run: |
           echo "hello world" > hello.txt
 
-      - name: Commit hello.txt
+      - name: Commit and push hello.txt
         run: |
           git add hello.txt
           git commit -m "Create hello.txt"
-
-      - name: Push changes
-        uses: ad-m/github-push-action@v7
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          branch: main
+          git push origin main
