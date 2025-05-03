@@ -29,3 +29,9 @@ jobs:
       - name: Push changes
         run: |
           git push origin main
+          
+      - name: Push changes
+        uses: ad-m/github-push-action@v6
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: main
