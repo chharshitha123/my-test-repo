@@ -1,0 +1,31 @@
+name: Create Hello World on Push
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  create_hello:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Git
+        run: |
+          git config --local user.name "github-actions"
+          git config --local user.email "github-actions@github.com"
+
+      - name: Create hello.txt
+        run: |
+          echo "hello world" > hello.txt
+
+      - name: Commit hello.txt
+        run: |
+          git add hello.txt
+          git commit -m "Create hello.txt"
+
+      - name: Push changes
+        run: |
+          git push origin main
