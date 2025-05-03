@@ -27,7 +27,7 @@ jobs:
           git commit -m "Create hello.txt"
 
       - name: Push changes
-        uses: ad-m/github-push-action@v6
+        uses: ad-m/github-push-action@v7
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           branch: main
