@@ -1,0 +1,13 @@
+name: Detect Push
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  log_push:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Log Push Event
+        run: echo "A push event has occurred on branch ${{ github.ref_name }} at ${{ github.event.head_commit.timestamp }}"
