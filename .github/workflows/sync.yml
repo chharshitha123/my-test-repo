@@ -1,9 +1,9 @@
-name: Sync bac.txt to hello.txt
+name: Sync abc.txt to hello.txt
 
 on:
   push:
     paths:
-      - bac.txt
+      - abc.txt
 
 jobs:
   sync-files:
@@ -13,13 +13,13 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v3
 
-    - name: Copy bac.txt to hello.txt
-      run: cp bac.txt hello.txt
+    - name: Copy abc.txt to hello.txt
+      run: cp abc.txt hello.txt
 
     - name: Commit and push changes
       run: |
         git config user.name "github-actions[bot]"
         git config user.email "github-actions[bot]@users.noreply.github.com"
         git add hello.txt
-        git commit -m "Sync: Copied bac.txt to hello.txt" || echo "No changes to commit"
+        git commit -m "Sync: Copied abc.txt to hello.txt" || echo "No changes to commit"
         git push
