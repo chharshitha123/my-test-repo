@@ -1,2 +1,1 @@
-int a=10
-int a=a+10
+hi, how are you?? tell me...please...please...are ypu there? hi..hello sir bhe
