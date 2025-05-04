@@ -1,1 +1,3 @@
-hi, how are you?? tell me...please...please...are ypu there? hi..hello sir bhe
+a=10
+a=a+1
+a=a+20;
